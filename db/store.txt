@@ -1,0 +1,15 @@
+A001;Sabritas;14.00F;
+A002;Doritos;15.50F;
+A003;Takis;16.50F;
+A004;Chetos;14.00F;
+A005;Rufles;13.00F;
+B001;Gansito;17.00F;
+B002;Nito;20.00F;
+B003;Mamut;3.50F;
+B004;Barritas;11.25F;
+B005;Bimbollos;20.00F;
+C001;CocaCola;18.00F;
+C002;Pepsi;17.50F;
+C003;Fanta;20.00F;
+C004;Sprite;22.00F;
+C005;Agua;50.50F;

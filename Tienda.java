@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Tienda
 {
+    /* Embellecer la interfaz */
     public static void clear() 
     {
         System.out.print("\033[H\033[2J");  
@@ -15,75 +16,77 @@ public class Tienda
         System.out.println("------------------------------------------------------");
     }
 
+    /* Main */
     public static void main(String[] args)
     {
-        /* Listas de productos */
+        /* Variables */
         Scanner leer = new Scanner(System.in);
+        DataBase db = new DataBase("db/store.txt");
 
-        int EN_VENTA = 15;
-        String[] id_producto = {
-            "A1", "A2", "A3", "A4", "A5", // Papas
-            "B1", "B2", "B3", "B4", "B5", // Pastelitos
-            "C1", "C2", "C3", "C4", "C5", // Refrescos
-        };
-        float[] precio_producto = {
-            14.00f, 15.50f, 16.50f, 14.00f, 13.00f, // Papas
-            20.00f, 18.00f, 13.00f, 22.00f, 21.25f, // Pastelitos
-            20.00f, 18.00f, 17.50f, 23.20f, 50.00f  // Refrescos
-        };
-        String[] nombre_producto = {
-            "Sabritas", "Doritos", "Takis"    , "Chetos"  , "Rufles",     // Papas
-            "Gansito" , "Nito"   , "Pinguinos", "Barritas", "Bimbollos",  // Pastelitos
-            "CocaCola", "Pepsi"  , "Jumex"    , "Sprite"  , "Agua"        // Refrescos
-        };
-
-        List<String> compras = new ArrayList<>();  // aqui guardaremos las compras del usuario
-        int producto_a_comprar = 0;
-        int productos_en_carrito = 0;
-        float precio_acumulado = 0;
-        float descuento = 0.0f, IVA = 0.16f;
+        int num_productos = 0;
+        float precio_acumulado = 0, descuento = 0;
         float total;
+        final float IVA = 0.16f;
+
+        String codigo_compra = "";
+        String producto_en_mano = "";
+        String en_carrito = "";
         
         /* Ciclo principal */
         do {
-            // mostrar el menu
+            // menu de inicio
             clear();
 
             lines();
-            System.out.println("|ID Nombre\t\tPrecio\t\tCodigo");
+            System.out.println("| TIENDA CINCO DE OROS");
             lines();
 
-            for(int i = 0; i < EN_VENTA; i++ ) {
-                System.out.println("|"+i+") "+nombre_producto[i]+"\t\t$"+precio_producto[i]+"\t\t"+id_producto[i]);
-            }
-
-            System.out.println("|");
-            System.out.println("|16) Finalizar compra");
-
-            // leer datos
-            lines();
-            System.out.println("Productos comprados: "+productos_en_carrito);
-            System.out.print("Producto a comprar <0-14>: ");
-            producto_a_comprar = leer.nextInt();
+            System.out.println("| 1) Ver catalogo");
+            System.out.println("| 0) Finalizar");
+            System.out.println("|\n| Productos en el carrito: "+num_productos);
             lines();
 
-            // analizar los datos de la compra
-            if(producto_a_comprar >= 0 && producto_a_comprar < 15) {
-                productos_en_carrito++;
+            // elegir opcion
+            System.out.println("Ingrese la opcion o el codigo de compra: ");
+            codigo_compra = leer.nextLine();
 
-                compras.add(nombre_producto[producto_a_comprar]);
-                precio_acumulado += precio_producto[producto_a_comprar];
+            // verificar opcion
+            if(codigo_compra.equals("1")) {
+                clear();
+                lines();
 
-                // verificar numero de productos para el descuento
-                if(productos_en_carrito > 1 && productos_en_carrito <= 5) 
-                    descuento = 0.02f;
-                if(productos_en_carrito > 5 && productos_en_carrito <= 10) 
-                    descuento = 0.05f;
-                if(productos_en_carrito > 10 && productos_en_carrito <= 15) 
-                    descuento = 0.09f;
+                System.out.println(db.get_all_data());
+                lines();
+                
+                System.out.println("pulse una tecla para continuar...");
+                leer.nextLine();
             }
             
-        } while(producto_a_comprar != 16);
+            producto_en_mano = db.filter(codigo_compra);
+
+            // Procesar la compra
+            if(!producto_en_mano.equals("") && !producto_en_mano.equals("1")) {
+                num_productos++;
+
+                precio_acumulado += Float.parseFloat(db.filter_the_line(producto_en_mano, 2));
+
+                en_carrito += producto_en_mano + "\n";
+
+                // verificar los productos en el carrito para hacer descuento
+                if(num_productos > 1 && num_productos <= 5) {
+                    descuento = 0.02f;
+                }
+                else if(num_productos > 5 && num_productos <= 10) {
+                    descuento = 0.05f;
+                }
+                if(num_productos > 11) {
+                    descuento = 0.09f;
+                }
+            }
+
+        } while(!codigo_compra.equals("0"));
+
+        clear();
 
         total = precio_acumulado + (precio_acumulado*IVA) - (precio_acumulado*descuento);
 
@@ -92,14 +95,13 @@ public class Tienda
         lines();
         System.out.println("\tTICKET DE COMPRA");
         lines();
-        for(String compra : compras) {
-            System.out.println(compra);
-        }
+
+        System.out.println(en_carrito);
 
         lines();
         System.out.println("Precio.....: "+precio_acumulado);
         System.out.println("IVA........: "+(precio_acumulado*IVA));
-        System.out.println("\nDescuento..:"+(precio_acumulado*descuento));
+        System.out.println("\nDescuento..: "+(precio_acumulado*descuento));
         System.out.println("\nTotal......: "+total);
         lines();
 
